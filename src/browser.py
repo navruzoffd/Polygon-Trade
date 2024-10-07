@@ -20,12 +20,12 @@ class Browser:
             self.context = await self.browser.new_context(
                 storage_state=self.storage
             )
-            logger.debug("Browser initialized")
+            logger.debug("browser initialized")
 
     async def start(self, url: str):
         await self._init_browser()
         self.page = await self.context.new_page()
         await self.page.goto(url)
         await self.page.wait_for_load_state('load')
-        logger.debug("Page loaded")
+        logger.debug("page loaded")
 

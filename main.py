@@ -1,10 +1,10 @@
 from playwright.async_api import async_playwright
 import asyncio 
-from src.polygon import Polygon
+from src.tradeBot import TradeBot
 
 async def main():
     async with async_playwright() as playwright:
-        playwright = Polygon(playwright=playwright,
+        playwright = TradeBot(playwright=playwright,
                             storage=None,
                             price_range=None)
         await playwright.start("https://plgeubet.com/withdraw/csgo_instant")

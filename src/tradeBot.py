@@ -3,7 +3,7 @@ from playwright.async_api import Playwright
 from logger import logger
 from src.browser import Browser
 
-class Polygon(Browser):
+class TradeBot(Browser):
 
     def __init__(self,
                  playwright: Playwright,
