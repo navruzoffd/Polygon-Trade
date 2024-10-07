@@ -8,7 +8,7 @@ async def main():
                             storage=None,
                             price_range=None)
         await playwright.start("https://plgeubet.com/withdraw/csgo_instant")
-        await playwright.collect_items_to_json()
+        await playwright.collect_items_to_json(usd_rub=96, usd_token=1350)
         await asyncio.sleep(3000)
 if __name__ == "__main__":
     asyncio.run(main())
