@@ -4,3 +4,4 @@ __pycache__
 logs
 src/__pycache__
 result.json
+storage.json

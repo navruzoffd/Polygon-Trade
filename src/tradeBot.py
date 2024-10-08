@@ -1,4 +1,5 @@
 from typing import Optional
+import asyncio
 import aiofiles
 import json
 from datetime import datetime
@@ -16,8 +17,17 @@ class TradeBot(Browser):
         super().__init__(playwright, storage)
         self.price_range = price_range
 
-    async def collect_items_to_json(self, usd_rub: int, usd_token: int):
+    async def collect_items_to_json(self, usd_rub: int, usd_token: int, price_mode:  Optional[str]):
         await self.page.wait_for_selector(".inventory_left_content")
+
+        if price_mode:
+            await self.page.click(".nice-select.sortprice")
+            await self.page.locator(
+                f"div.nice-select.sortprice.open ul.list li[data-value='{price_mode}']"
+            ).click()
+
+        await self.page.wait_for_selector(".inventory_left_content")
+
         items = await self.page.query_selector_all(".inventory_item.instant_item")
         logger.debug("items loaded")
 
@@ -26,6 +36,7 @@ class TradeBot(Browser):
             "itemsCount": 0,
             "itemsList": []
         }
+
 
         for item in items:
             gun_name = await item.query_selector(".inventory_item_label")
@@ -63,3 +74,27 @@ class TradeBot(Browser):
         await self.context.storage_state(path="storage.json")
         logger.info("account saved")
         await self.browser.close()
+
+    async def steam_compare(self):
+        with open('result.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        items = data["itemsList"]
+        await self.page.goto("https://steamcommunity.com/market/search?appid=730")
+        await self.page.wait_for_load_state("load")
+
+        for i in range(data["itemsCount"]):
+            search_name = f'{items[i]["gun_name"]} {items[i]["skin_name"]} {items[i]["state"]}'
+
+            await self.page.fill("#findItemsSearchBox", search_name)
+            await self.page.press("#findItemsSearchBox", "Enter")
+            await self.page.wait_for_load_state("load")
+
+            while not await self.page.query_selector(".market_listing_table_header"):
+                await self.page.reload()
+                await self.page.wait_for_load_state("load")
+
+            price = await self.page.locator(".market_table_value .normal_price").first.inner_text()
+            price = float(price.replace("руб.", "").strip().replace(",", "."))
+            benefit = round(price * 0.87 / items[i]["priceRub"] - 1, 2)*100 
+            print(f'{items[i]["skin_name"]} = {benefit}%')
