@@ -22,7 +22,7 @@ class TradeBot(Browser):
         logger.debug("items loaded")
 
         data = {
-            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timeSync": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "itemsCount": 0,
             "itemsList": []
         }
@@ -52,3 +52,14 @@ class TradeBot(Browser):
             await f.write(json_data)
 
         logger.info("JSON form loaded")
+
+    async def auth(self):
+        await self._init_browser()
+        self.page = await self.context.new_page()
+        await self.page.goto("https://plgeubet.com/")
+        await self.page.click(".guest")
+        await self.page.click(".window_steam_button")
+        await self.page.wait_for_url("https://plgeubet.com/")
+        await self.context.storage_state(path="storage.json")
+        logger.info("account saved")
+        await self.browser.close()

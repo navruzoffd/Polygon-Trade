@@ -1,14 +1,20 @@
 from playwright.async_api import async_playwright
 import asyncio 
 from src.tradeBot import TradeBot
+import os
 
 async def main():
     async with async_playwright() as playwright:
-        playwright = TradeBot(playwright=playwright,
-                            storage=None,
-                            price_range=None)
-        await playwright.start("https://plgeubet.com/withdraw/csgo_instant")
-        await playwright.collect_items_to_json(usd_rub=96, usd_token=1350)
+        bot = TradeBot(playwright=playwright,
+                       storage="storage.json" if os.path.isfile("storage.json") else None,
+                       price_range=None)
+        # await bot.auth()
+        await bot.start("https://plgeubet.com/withdraw/csgo_instant")
+        await bot.collect_items_to_json(usd_rub=96, usd_token=1350)
         await asyncio.sleep(3000)
+
+
+
+
 if __name__ == "__main__":
     asyncio.run(main())
