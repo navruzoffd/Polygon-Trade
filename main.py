@@ -9,7 +9,10 @@ async def main():
                        storage="storage.json" if os.path.isfile("storage.json") else None)
         # await bot.auth()
         await bot.start("https://plgeubet.com/withdraw/csgo_instant")
-        await bot.collect_items_to_json(usd_rub=96, usd_token=1350, price_mode="0#5000")
+        await bot.collect_items_to_json(usd_rub=97,
+                                        usd_token=1350,
+                                        price_mode="0#5000",
+                                        quantity=300)
         await bot.steam_compare()
         await asyncio.sleep(3000)
 

@@ -1,9 +1,8 @@
 from typing import Optional
-import asyncio
 import aiofiles
+import asyncio
 import json
 from datetime import datetime
-from playwright.async_api import Playwright
 from logger import logger
 from src.browser import Browser
 
@@ -12,13 +11,21 @@ class TradeBot(Browser):
     async def collect_items_to_json(self,
                                     usd_rub: int,
                                     usd_token: int,
-                                    price_mode:  Optional[str]):
+                                    price_mode:  Optional[str],
+                                    quantity: int):
         await self.page.wait_for_selector(".inventory_left_content")
 
         if price_mode:
             await self.page.click(".nice-select.sortprice")
             await self.page.click(f"li[data-value='{price_mode}']")
             await self.page.wait_for_selector(".inventory_left_content")
+
+        pages = int(quantity / 50)
+
+        if pages > 0:
+            for _ in range(pages):
+                await self.page.click("text='load more'")
+                await asyncio.sleep(3)
 
         items = await self.page.query_selector_all(".inventory_item.instant_item")
         logger.debug("items loaded")
@@ -29,7 +36,7 @@ class TradeBot(Browser):
             "itemsList": []
         }
 
-        for item in items:
+        for item in items[:quantity]:
             gun_name = await item.query_selector(".inventory_item_label")
             skin_name = await item.query_selector(".inventory_item_name")
             state = await item.query_selector(".inventory_item_category")
