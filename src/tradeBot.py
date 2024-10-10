@@ -1,4 +1,5 @@
 from typing import Optional
+from playwright.async_api import Playwright
 import aiofiles
 import asyncio
 import json
@@ -8,9 +9,16 @@ from src.browser import Browser
 
 class TradeBot(Browser):
 
+    def __init__(self,
+                 playwright: Playwright,
+                 storage: Optional[str],
+                 usd_rub: float,
+                 usd_token: int):
+        super().__init__(playwright, storage)
+        self.usd_rub = usd_rub
+        self.usd_token = usd_token
+
     async def collect_items_to_json(self,
-                                    usd_rub: int,
-                                    usd_token: int,
                                     price_mode:  Optional[str],
                                     quantity: int):
         await self.page.wait_for_selector(".inventory_left_content")
@@ -43,7 +51,7 @@ class TradeBot(Browser):
             price = await item.query_selector(".inventory_item_cost")
             
             if price:
-                price = round(int(await price.inner_text())/usd_token*usd_rub, 2)
+                price = round(int(await price.inner_text())/self.usd_token*self.usd_rub, 2)
 
             data["itemsList"].append({
                 "gun_name": await gun_name.inner_text() if gun_name else None,
@@ -87,11 +95,11 @@ class TradeBot(Browser):
 
             await self.page.fill("#findItemsSearchBox", item_name)
             await self.page.press("#findItemsSearchBox", "Enter")
-            await self.page.wait_for_load_state("load")
+            await self.page.wait_for_selector(".market_search_results_header")
 
             while not await self.page.query_selector(".market_listing_table_header"):
                 await self.page.reload()
-                await self.page.wait_for_load_state("load")
+                await self.page.wait_for_selector(".market_search_results_header")
 
             price_str = await self.page.locator(".market_table_value .normal_price").first.inner_text()
             price = float(price_str.replace("руб.", "").strip().replace(",", "."))
