@@ -12,7 +12,8 @@ async def main():
         # await bot.auth()
         await bot.start("https://plgeubet.com/withdraw/csgo_instant")
         await bot.collect_items_to_json(price_mode="0#5000", quantity=100)
-        await bot.steam_compare()
+        # await bot.steam_compare()
+        await bot.steam_compare_aiohttp()
         await asyncio.sleep(3000)
 
 
