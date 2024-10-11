@@ -45,6 +45,7 @@ class TradeBot(Browser):
         }
 
         for item in items[:quantity]:
+            prefix = await item.query_selector(".inventory_item_prefix")
             gun_name = await item.query_selector(".inventory_item_label")
             skin_name = await item.query_selector(".inventory_item_name")
             state = await item.query_selector(".inventory_item_category")
@@ -54,6 +55,7 @@ class TradeBot(Browser):
                 price = round(int(await price.inner_text())/self.usd_token*self.usd_rub, 2)
 
             data["itemsList"].append({
+                "prefix": await prefix.inner_text() if prefix else None,
                 "gun_name": await gun_name.inner_text() if gun_name else None,
                 "skin_name": await skin_name.inner_text() if skin_name else None,
                 "state": await state.inner_text() if state else None,
@@ -91,7 +93,7 @@ class TradeBot(Browser):
         counter = 0
 
         for i in range(data["itemsCount"]):
-            item_name = f'{items[i]["gun_name"]} {items[i]["skin_name"]} {items[i]["state"]}'
+            item_name = " ".join(filter(None, [items[i]["prefix"], items[i]["gun_name"], items[i]["skin_name"], items[i]["state"]]))
 
             await self.page.fill("#findItemsSearchBox", item_name)
             await self.page.press("#findItemsSearchBox", "Enter")
