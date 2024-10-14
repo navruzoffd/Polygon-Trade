@@ -166,33 +166,37 @@ class TradeBot(Browser):
                     if response_json["lowest_price"]:
                         price_str = response_json["lowest_price"]
                         price = float(price_str.replace("руб.", "").strip().replace(",", "."))
+                        volume = response_json.get("volume", "N/A")
                         benefit = round((price * 0.87 / items[i]["priceRub"] - 1) * 100, 2)
 
                         results.append({
-                        "name": item_name,
-                        "price": price,
-                        "benefit": benefit
+                            "name": item_name,
+                            "price": price,
+                            "volume": volume,
+                            "benefit": benefit
                         })
 
                         if benefit > 40:
-                            logger.info(f"[{counter}] {item_name} ({benefit}%)\n{url}")
+                            logger.info(f"[{counter}] {item_name} ({benefit}%, volume: {volume})\n{url}")
                         else:
-                            print(f"[{counter}] {item_name} ({benefit}%)")
+                            print(f"[{counter}] {item_name} ({benefit}%, volume: {volume}))")
                     else:
                         price_str = response_json["median_price"]
                         price = float(price_str.replace("руб.", "").strip().replace(",", "."))
+                        volume = response_json.get("volume", "N/A")
                         benefit = round((price * 0.87 / items[i]["priceRub"] - 1) * 100, 2)
 
                         results.append({
-                        "name": item_name,
-                        "price_median": price,
-                        "benefit": benefit
+                            "name": item_name,
+                            "price_median": price,
+                            "volume": volume,
+                            "benefit": benefit
                         })
 
                         if benefit > 40:
-                            logger.info(f"[MEDIAN] [{counter}] {item_name} ({benefit}%)")
+                            logger.info(f"[MEDIAN] [{counter}] {item_name} ({benefit}%, volume: {volume}))")
                         else:
-                            print(f"[MEDIAN] [{counter}] {item_name} ({benefit}%)")
+                            print(f"[MEDIAN] [{counter}] {item_name} ({benefit}%, volume: {volume}))")
 
                     await asyncio.sleep(3)
 
@@ -210,6 +214,6 @@ class TradeBot(Browser):
         print("\n---Sorted result---")
         for result in sorted_results:
             if result["price"]:
-                print(f"{result['name']} = {result['price']} rub., Benefit: {result['benefit']}%")
+                print(f"{result['name']} = {result['price']} rub., Benefit: {result['benefit']}%, volume: {result['volume']}")
             elif result["price_median"]:
-                print(f"[MEDIAN] {result['name']} = {result['price_median']} rub., Benefit: {result['benefit']}%")
+                print(f"[MEDIAN] {result['name']} = {result['price_median']} rub., Benefit: {result['benefit']}%, volume: {result['volume']}")
